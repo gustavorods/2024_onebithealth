@@ -6,11 +6,12 @@ import {TextInput,
         Vibration,
         Pressable,
         Keyboard,
+        FlatList,
     } from  "react-native"
 import ResultImc from "./ResultImc/";
 import styles from "./style"
 
-export default function Form() {
+export default function Form(props) {
 
 const [heigh, setHeigh]=useState(null)
 const [weight, setWeight]=useState(null)
@@ -18,10 +19,16 @@ const [messageImc, setMessageImc]=useState("Preencha o peso e altura")
 const [imc,setImc]=useState(null)
 const [textButton, setTextButton]=useState("Calcular")
 const [errorMessage, setErrorMessage] = useState(null)
+const [imcList, setImcList] = useState([]);
 
 function imcCalculator() {
     let heightFormat = heigh.replace(",", ".") // Se o calculo for feito com ",", vai dar erro.
-    return setImc((weight/(heightFormat*heightFormat)).toFixed(2))
+    let totalImc = (weight/(heightFormat*heightFormat)).toFixed(2)
+    setImcList ((arr) => [...arr, {
+        id: new Date().getTime(), 
+        imc: totalImc}
+    ])
+    setImc(totalImc)    
 }
 
 function verificationImc() {
@@ -32,6 +39,7 @@ function verificationImc() {
 }
 
 function validationImc() {
+    console.log(imcList)
     if(weight != null && heigh != null) {
         imcCalculator()
         setHeigh(null)
@@ -85,6 +93,21 @@ function validationImc() {
                 </TouchableOpacity>
             </View>
             }
+            <FlatList
+            style={styles.listImcs}
+            data={imcList.reverse()}
+            renderItem={({item}) => {
+                return(
+                    <Text> style={styles.resultImcItem}
+                        <Text style={styles.textResultItemList}>Resultado IMC = </Text>
+                        {item.imc}
+                    </Text>
+                )
+            }}
+            keyExtractor={(item) => {
+                item.id
+            }}
+            />
         </View>
     );
 }
